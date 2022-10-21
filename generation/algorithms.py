@@ -1,8 +1,11 @@
+from random import shuffle, randint, sample
+
+
 def dict_to_list(gr: dict) -> list:
     """
     Преобразует граф типа словарь в тип двумерный массив
 
-    :param d: граф типа словарь
+    :param gr: граф типа словарь
     :return: двумерный массив
     """
     new = []
@@ -59,6 +62,46 @@ def FordFulkerson(gr: dict) -> tuple:
     A = [i for i in range(len(parent)) if parent[i] != -1]
     B = [i for i in range(len(parent)) if parent[i] == -1]
     return max_flow, A, B
+
+
+def random_sum(n, total) -> list:
+    """Return a randomly chosen list of n positive integers summing more than total.
+    Each such list is equally likely to occur."""
+    if not n:
+        return []
+    if n < 3:
+        res = []
+        for _ in range(n):
+            res.append((total + randint(total // 10, total // 3)) * 4 // 5)
+        return res
+    div1 = sorted(sample(range(total * 2 // 3, total), n))
+    div2 = div1.copy()
+    shuffle(div2)
+    return [(a + b) * 2 // 3 + 1 for a, b in zip(div1, div2)]
+
+
+def random_flow(n, total) -> list:
+    """Return a randomly chosen list of n positive integers summing to total.
+    Each such list is equally likely to occur."""
+    if n == 1:
+        return [total]
+    res = []
+    if total//n < 6:
+        res = [total//n]*n
+        res[0] += total-sum(res)
+        return res
+    try:
+        while True:
+            dividers = sorted(sample(range(1, total), n - 1))
+            res = [a - b for a, b in zip(dividers, [0] + dividers[:-1])]
+            res.append(total-sum(res))
+            if len(list(filter(lambda x: x > 0, res))) == len(res):
+                break
+    except ValueError:
+        print("!!!", n, total)
+    return res
+
+
 
 # C = [[0, 25, 47, 14, 21, 0, 0, 0, 0, 0, 0, 0],
 #      [0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 13],

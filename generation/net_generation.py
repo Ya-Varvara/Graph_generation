@@ -1,8 +1,7 @@
 from random import random, randint, choice, shuffle
-from generation.algorithms import random_sum, random_flow, FordFulkerson
+from generation.algorithms import random_flow
 from generation.graph_draw import draw_graph
 from collections import deque
-from generation.test import ex2
 
 # TODO Рефакторинг всего кода
 # TODO Сохранять планарные графы
@@ -403,57 +402,3 @@ def make_throughput(graph: dict, cut_edges: list, min_weight=1, max_weight=60) -
             graph[x][y] += add
     return
 
-
-# def add_weights(graph: dict, wmin=5, wmax=70) -> dict:
-#     """
-#
-#     :param wmax:
-#     :param wmin:
-#     :param graph:
-#     :return:
-#     """
-#     new_graph = {x: {y: 0 for y in graph[x]} for x in graph}
-#     cutA, cutB, cut, r_cut = make_cut(graph)
-#     print('Множество А = ', cutA, "\nМножество В = ", cutB, "\nРебра = ", cut, "\nОбратные ребра =", r_cut)
-#     window = round((wmax - wmin + 1) * 0.10)
-#     avg = (wmax - wmin) // 2
-#     max_flow = 0
-#     input_flow = [0] * len(new_graph)
-#
-#     def add_next(x):
-#         if x == len(new_graph) - 1:
-#             return
-#         w = random_sum(len(new_graph[x]), input_flow[x])
-#         buf = []
-#         for y in new_graph[x]:
-#             if not new_graph[x][y]:
-#                 f = w.pop()
-#                 new_graph[x][y] = f
-#                 input_flow[y] += f
-#                 buf.append(y)
-#         for y in buf:
-#             add_next(y)
-#         return
-#
-#     for x, y in cut:
-#         flow = randint(avg - 3 * window, avg)
-#         new_graph[x][y] = flow
-#         input_flow[y] += flow
-#         max_flow += flow
-#         add_next(y)
-#     for x, y in r_cut:
-#         flow = randint(avg - 3 * window, avg)
-#         new_graph[x][y] = flow
-#     for node in cutA:
-#         for x in new_graph[node]:
-#             if not new_graph[node][x]:
-#                 flow = randint(avg, avg + 2 * window)
-#                 new_graph[node][x] = flow
-#     print("Граф с весами\n", new_graph)
-#     print(max_flow)
-#     return new_graph
-# ex3 = {0: [4, 1, 3], 1: [2, 4, 3], 2: [4], 3: [2, 4], 4: [5, 6, 3], 5: [6, 3], 6: [8, 11], 7: [9], 8: [7, 10], 9: [8, 10], 10: [11, 9], 11: []}
-# print(ex3)
-# cutA, cutB, cut, r_cut = make_cut(ex3)
-# print(ex3)
-# print(cutA, cutB, cut, r_cut)

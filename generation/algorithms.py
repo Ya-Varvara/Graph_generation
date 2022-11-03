@@ -97,6 +97,11 @@ def random_flow(n, total) -> list:
             res.append(total-sum(res))
             if len(list(filter(lambda x: x > 0, res))) == len(res):
                 break
+            if min(res) <= 2:
+                res.sort()
+                k = res[n-1] // 2
+                res[n-1] -= k
+                res[0] += k
     except ValueError:
         print("!!!", n, total)
     return res

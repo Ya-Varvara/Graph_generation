@@ -1,43 +1,54 @@
-from random import random, randint, choice, shuffle
+from random import random, randint, shuffle
 from generation.algorithms import random_flow
 from generation.graph_draw import draw_graph
 from collections import deque
+
 
 # TODO Рефакторинг всего кода
 # TODO Сохранять планарные графы
 # TODO Настроить БД для хранения графов
 # TODO Настроить выборку из БД
+# TODO Функция, проверяющая кол-во исходящих ребер
 
 
-def generate(nodes: int, min_weight=1, max_weight=60) -> None:
+def generate(nodes: int, min_weight=1, max_weight=60) -> tuple:
     # Высчитываем средний вес и 10% от диапазона для задания максимального потока
-    k = (max_weight - min_weight)//10
-    avg = (max_weight - min_weight)//2
+    k = (max_weight - min_weight) // 10
+    avg = (max_weight - min_weight) // 2
+
     # Генерируем базу
     base = generate_graph_base(nodes)
     print(base)
+
     # Генерируем сильно связный граф
-    while True:
-        make_strongly_connected(base)
-        if is_strongly_connected(base):
-            break
+    make_strongly_connected(base)
     print(base)
-    # Задаем разрез и определяем подмножества вершин и обратные ребра разреза, проверяем на то, чтобы списки ребер были не пустные
+
+    # Задаем разрез и определяем подмножества вершин и обратные ребра разреза, проверяем на то, чтобы списки ребер
+    # были не пустные
     while True:
         cutA, cutB, cut, r_cut = make_cut(base)
         if cut and r_cut:
             break
     print(base)
     print('Множество А = ', cutA, "\nМножество В = ", cutB, "\nРебра = ", cut, "\nОбратные ребра =", r_cut)
+
     # Задаем максимальный поток на графе
-    net, max_flow = make_flow(base, cut, r_cut, avg-k, avg+k)
+    net, max_flow = make_flow(base, r_cut, avg - k, avg + k)
     print(net)
     print(max_flow)
+    if check_graph_flow(net):
+        print("Ok")
+    else:
+        print(":(")
+
     # Определяем пропускные способности
     make_throughput(net, cut, min_weight, max_weight)
     print(net)
+
     # Рисуем граф
     draw_graph(net)
+    return net, max_flow, cut, cutA, cutB
 
 
 def generate_graph_with_p(n: int, p: float) -> dict:
@@ -100,26 +111,6 @@ def generate_graph_base(n: int) -> dict:
     return graph
 
 
-def is_strongly_connected(graph: dict) -> bool:
-    """Проверка на сильную связность графа
-
-    :param graph: граф в виде словаря
-    :return: bool
-    """
-    buf = []
-    done = set()
-    buf.extend(graph[0])
-    done.add(0)
-    while buf:
-        node = buf.pop(0)
-        if node not in done:
-            done.add(node)
-            buf.extend(graph[node])
-    if len(done) == len(graph):
-        return True
-    return False
-
-
 def is_weakly_connected(graph: dict) -> bool:
     """Проверка на связность графа
 
@@ -143,19 +134,19 @@ def is_weakly_connected(graph: dict) -> bool:
     return True if len(done) == len(graph) else False
 
 
-def count_edges(graph: dict) -> tuple:
-    """Считает у каждого узла кол-во входящих и исходящих ребер
-
-    :param graph: Граф
-    :return: 2 Массива - один с кол-вом входящих ребер, второй - с кол-вом исходящих ребер
-    """
-    res_in = [0] * len(graph)
-    res_out = [0] * len(graph)
-    for key, value in graph.items():
-        res_out[key] = len(value)
-        for node in value:
-            res_in[node] += 1
-    return res_in, res_out
+def is_strongly_connected(graph: dict) -> tuple:
+    buf = []
+    buf.extend(graph[0])
+    done = set()
+    done.add(0)
+    while buf:
+        node = buf.pop(0)
+        if node not in done:
+            done.add(node)
+            buf.extend(graph[node])
+    if len(done) == len(graph):
+        return True, 0
+    return False, done
 
 
 def make_strongly_connected(graph: dict) -> None:
@@ -165,16 +156,39 @@ def make_strongly_connected(graph: dict) -> None:
     :return: Ничего не возвращается, граф изменяется
     """
 
+    def count_edges() -> tuple:
+        """Считает у каждого узла кол-во входящих и исходящих ребер
+
+        :return: 2 Массива - один с кол-вом входящих ребер, второй - с кол-вом исходящих ребер
+        """
+        res_in = [0] * len(graph)
+        res_out = [0] * len(graph)
+        for key, value in graph.items():
+            res_out[key] = len(value)
+            for nod in value:
+                res_in[nod] += 1
+        return res_in, res_out
+
     def update_edges(source_node: int, destination_node: int) -> None:
         graph[source_node].append(destination_node)
         edges_out[source_node] += 1
         edges_in[destination_node] += 1
+        # print(f"Edge ({source_node}, {destination_node}) was added")
 
-    edges_in, edges_out = count_edges(graph)
+    edges_in, edges_out = count_edges()
+    # print(f"Edges in = {edges_in} \n Edges out = {edges_out}")
     n = len(graph) - 1
     w = (n + 1) // 2
-    zero_in = [i for i in edges_in if not edges_in[i] and i]
-    zero_out = [i for i in edges_out if not edges_out[i] and i < w - 1]
+    if n <= 6:
+        diff = n-1
+    elif n < 12:
+        diff = w
+    else:
+        diff = (n+1) // 3
+    # print(f"Len = {n}, diff={diff}")
+    zero_in = [i for i in range(n+1) if edges_in[i] <= 1 and i]
+    zero_out = [i for i in range(n+1) if edges_out[i] <= 1 and i < w - 1]
+    # print(f"Zero in = {zero_in}\nZero out = {zero_out}")
     if edges_out[0] < randint(2, 4):
         flag = False
         for node in zero_in:
@@ -191,10 +205,10 @@ def make_strongly_connected(graph: dict) -> None:
             if edges_in[x] < 3 and x not in graph[0]:
                 update_edges(0, x)
                 flag = True
-    if edges_in[n] < randint(2, 4):
+    if edges_in[n] < randint(3, 4):
         flag = False
         for node in zero_out:
-            if node >= w and node not in graph[n]:
+            if node >= w and n not in graph[node]:
                 update_edges(node, n)
                 flag = True
                 if edges_out[node] > 1:
@@ -209,62 +223,149 @@ def make_strongly_connected(graph: dict) -> None:
                 flag = True
     while zero_out:
         x = zero_out.pop(0)
-        k = randint(2, 3)
+        k = randint(1, 2)
         while k:
             for node in zero_in:
-                if abs(node - x) <= w and x not in graph[node] and node not in graph[x]:
+                if x != node and abs(node - x) <= diff and x not in graph[node] and node not in graph[x]:
                     update_edges(x, node)
                     if edges_in[node] > 1:
                         zero_in.remove(node)
                     k -= 1
                 if not k:
                     break
-            for i in range(1, n):
+            if not k:
+                break
+            for i in range(x+1, n):
                 if not k:
                     break
-                if x != i and abs(i - x) <= w and x not in graph[i] and i not in graph[x]:
+                if abs(i - x) <= diff and x not in graph[i] and i not in graph[x]:
                     update_edges(x, i)
                     k -= 1
             break
     while zero_in:
         x = zero_in.pop(0)
-        k = randint(2, 3)
+        k = randint(1, 2)
         while k:
-            for i in range(1, n - 1):
-                if not k:
-                    break
-                if x != i and abs(i - x) <= w and len(graph[i]) <= randint(2, 3) and x not in graph[i] and i not in \
+            nodes = [x for x in range(1, n-1)]
+            shuffle(nodes)
+            for i in nodes:
+                if x != i and abs(i - x) <= diff and len(graph[i]) <= randint(2, 3) and x not in graph[i] and i not in \
                         graph[x]:
                     update_edges(i, x)
                     k -= 1
+                if not k:
+                    break
             break
-    for x in graph:
-        if edges_out[x] == 1:
-            k = randint(1, 2) if x < n - 1 else 1
-            if x + k not in graph[x]:
-                graph[x].append(x + k)
-    # return graph
+    flag, good_nodes = is_strongly_connected(graph)
+    while not flag:
+        # print("Is not strongly connected after first round")
+        bad_nodes = set(graph.keys()) - good_nodes
+        # print(bad_nodes)
+        last_nodes = [i for i in range(1, n-1)]
+        shuffle(last_nodes)
+        # print(f"last nodes in strongly connected = {last_nodes}")
+        while bad_nodes:
+            x = bad_nodes.pop()
+            for i in last_nodes:
+                if x != i and abs(i - x) <= diff and x not in graph[i] and i not in graph[x] and len(graph[i]) < 3:
+                    update_edges(i, x)
+                    break
+        flag, good_nodes = is_strongly_connected(graph)
+    edges_in, edges_out = count_edges()
+    # must_edges = check_ways(graph, diff)
+    for node in graph:
+        if node == n or node == 0:
+            continue
+        if (len(graph[node]) == 3 and random() > 0.4) or (len(graph[node]) > 3):
+            node_list = list(graph[node])
+            k = node_list.pop(0)
+            while node_list and edges_in[k] < 2:
+                # print(k)
+                k = node_list.pop(0)
+            graph[node].remove(k)
+            # print(f"Edge ({node}, {k}) was removed")
+    must_edges = check_ways(graph, diff)
+    return
 
 
-def make_flow(base: dict, cut: list, reversed_cut: list, min_flow=20, max_flow=40) -> tuple:
+def check_ways(graph: dict, diff: int) -> list:
+    way_len = [0]*len(graph)
+    buf = [0]
+    must_edges = []
+    while buf:
+        x = buf.pop()
+        for y in graph[x]:
+            if not way_len[y] or way_len[y] > way_len[x]+1:
+                way_len[y] = way_len[x] + 1
+                if y not in buf:
+                    buf.append(y)
+    for node in graph:
+        amount_back_nodes = 0
+        cur_way = way_len[node]
+        for y in graph[node]:
+            if way_len[y] <= cur_way:
+                amount_back_nodes += 1
+        print(f"For node {node} amount back nodes = {amount_back_nodes}, cur.way = {cur_way}, amount of nodes = {len(graph[node])}")
+        if amount_back_nodes == len(graph[node]) and node != len(graph)-1:
+            flag = True
+            last_nodes = [i for i in range(len(graph)) if 1 <= way_len[i] - cur_way or i == len(graph) - 1]
+            shuffle(last_nodes)
+            while len(graph[node]) >= 3:
+                graph[node].remove(min(graph[node]))
+                print("1 Node was removed")
+            print(f"last nodes in check_ways = {last_nodes}")
+            for x in last_nodes:
+                if x not in graph[node] and node not in graph[x] and abs(node - x) <= diff:
+                    graph[node].append(x)
+                    flag = False
+                    must_edges.append((node, x))
+                    print(f"Edge ({node}, {x}) was added")
+                    break
+            if flag:
+                first_nodes = [x for x in graph if way_len[x] < cur_way]
+                for x in first_nodes:
+                    if node not in graph[x] and abs(node-x) <= diff:
+                        graph[x].append(node)
+                        must_edges.append((x, node))
+                        print(f"Edge ({x}, {node}) was added")
+                        break
+    return must_edges
+
+
+def check_graph_flow(graph) -> bool:
+    """
+    Функция проверяет каждую вершину графа на баланс потока
+
+    :param graph:
+    :return:
+    """
+    first = 0
+    n = len(graph)
+    flow_in = [0] * len(graph)
+    flow_out = [0] * len(graph)
+    for node in graph:
+        flow_out[node] = sum(list(graph[node].values()))
+        for x in graph[node]:
+            flow_in[x] += graph[node][x]
+    print(flow_in)
+    print(flow_out)
+    for node in range(first + 1, n - 1):
+        if flow_out[node] != flow_in[node]:
+            return False
+    if flow_out[first] != flow_in[n - 1]:
+        return False
+    return True
+
+
+def make_flow(base: dict, reversed_cut: list, min_flow=20, max_flow=40) -> tuple:
     """Расставляет поток в графе
 
     :param max_flow: Верхняя граница максимального потока
     :param min_flow: Нижняя граница максимального потока
     :param base: граф, в котором нужно провести поток
-    :param cut: ребра, входящие в разрез
     :param reversed_cut: ребра, входящие в обратный разрез
     :return: граф с потоком, максимальный поток
     """
-
-    def edge_balance(node) -> bool:
-        out_flow = sum(graph[node].values())
-        in_flow = 0
-        for x in graph:
-            if node in graph[x]:
-                in_flow += graph[x][node]
-        return True if in_flow == out_flow else False
-
     graph = {x: {y: 0 for y in base[x]} for x in base}
     done = []
     buf = deque()
@@ -272,7 +373,10 @@ def make_flow(base: dict, cut: list, reversed_cut: list, min_flow=20, max_flow=4
     flow = randint(min_flow, max_flow)
     input_flow = [0] * len(graph)
 
-    def update_flow(node, fl) -> bool:
+    def update_flow(node: int, fl: int, first_node=None) -> bool:
+        print(f"In upgrade flow for node {node}")
+        if first_node is None:
+            first_node = node
         nodes = set(graph[node]) - set(done)
         if nodes:
             f = random_flow(len(nodes), fl)
@@ -280,12 +384,16 @@ def make_flow(base: dict, cut: list, reversed_cut: list, min_flow=20, max_flow=4
                 k = f.pop()
                 graph[node][x] += k
                 input_flow[x] += k
-        else:
-            k = choice(list(graph[node].keys()))
-            graph[node][k] += fl
-            input_flow[k] += fl
-            update_flow(k, fl)
-        return True
+            return True
+        # else:
+        #     for x in graph[node]:
+        #         if x == first_node:
+        #             continue
+        #         if update_flow(x, fl, first_node):
+        #             graph[node][x] += fl
+        #             input_flow[x] += fl
+        #             return True
+        return False
 
     def add_flow(node):
         if node == n:
@@ -296,37 +404,134 @@ def make_flow(base: dict, cut: list, reversed_cut: list, min_flow=20, max_flow=4
         else:
             z = list(filter(lambda y: (node, y) in reversed_cut, list(graph[node].keys())))
             f = random_flow(len(graph[node]) - len(z), input_flow[node])
-        for x in graph[node]:
-            if (node, x) in reversed_cut:
-                graph[node][x] = 0
-                continue
-            fl = f.pop()
-            if x in done:
-                if not update_flow(x, fl):
-                    f[0] += fl
-                    fl = 0
-            elif x not in buf:
+        new_nodes = [x for x in graph[node] if x not in done and (node, x) not in reversed_cut]
+        done_nodes = [x for x in graph[node] if x in done and (node, x) not in reversed_cut]
+        already_added = []
+        while done_nodes:
+            x = done_nodes.pop(0)
+            added_flow = f.pop()
+            if update_flow(x, added_flow):
+                graph[node][x] += added_flow
+                input_flow[x] += added_flow
+            else:
+                if new_nodes or done_nodes:
+                    f[0] += added_flow
+                else:
+                    if already_added and update_flow(already_added[0], added_flow):
+                        print("Update flow to already added")
+                        graph[node][already_added[0]] += added_flow
+                        input_flow[already_added[0]] += added_flow
+            already_added.append(x)
+        while new_nodes:
+            x = new_nodes.pop(0)
+            added_flow = f.pop()
+            if x not in buf:
                 buf.append(x)
-            graph[node][x] = fl
-            input_flow[x] += fl
+            graph[node][x] += added_flow
+            input_flow[x] += added_flow
         while buf:
             add_flow(buf.popleft())
         return
-
     add_flow(0)
     return graph, flow
 
 
 def make_cut(graph: dict) -> tuple:
+    source = 0
+    sink = len(graph) - 1
+    A = [0]
+    B = [i for i in range(1, sink+1)]
+    cut = [(0, i) for i in graph[0]]
+    r_cut = []
+    r_cutbest, Abest, Bbest, cutbest = r_cut.copy(), A.copy(), B.copy(), cut.copy()
+    # print("first", A, B, cut, r_cut)
+    while len(A) <= len(B):
+        node = 0
+        for x, y in cut:
+            if y != sink:
+                node = y
+                break
+        if node == 0:
+            break
+        A.append(node)
+        B.remove(node)
+        cut = list(filter(lambda s: s[1] not in A, cut))
+        cut.extend([(node, i) for i in graph[node] if i in B])
+        r_cut = [(s, d) for s in graph for d in graph[s] if s in B and d in A]
+        # print("in cycle", A, B, cut, r_cut)
+        if (len(r_cutbest) == 0 and (len(r_cut) > 0 or len(Abest) <= 3)) or \
+           (len(r_cutbest) == 1 and (len(r_cut) == 1 and len(A) <= sink//2 and (len(cut) < len(cutbest) or len(Abest) < 3))):
+            r_cutbest, Abest, Bbest, cutbest = r_cut.copy(), A.copy(), B.copy(), cut.copy()
+        # if len(r_cutbest) == 0:
+        #     if len(r_cut) > 0 or len(Abest) <= 3:
+        #         r_cutbest = r_cut.copy()
+        #         Abest = A.copy()
+        #         Bbest = B.copy()
+        #         cutbest = cut.copy()
+        #         # print("Best is new", Abest, Bbest, cutbest, r_cutbest)
+        # elif len(r_cutbest) == 1:
+        #     if len(r_cut) == 1 and len(A) <= sink//2 and (len(cut) < len(cutbest) or len(Abest) < 3):
+        #         r_cutbest = r_cut.copy()
+        #         Abest = A.copy()
+        #         Bbest = B.copy()
+        #         cutbest = cut.copy()
+        #         # print("Best is new", Abest, Bbest, cutbest, r_cutbest)
+        else:
+            if 0 < len(r_cut) < len(r_cutbest):
+                r_cutbest, Abest, Bbest, cutbest = r_cut.copy(), A.copy(), B.copy(), cut.copy()
+                # print("Best is new", Abest, Bbest, cutbest, r_cutbest)
+    if len(r_cutbest) == 0:
+        x = A[len(A)-1]
+        for node in B:
+            if node != sink and x not in graph[node] and node not in graph[x]:
+                graph[node].append(x)
+                r_cutbest.append((node, x))
+                # print("Add extra reverse edge")
+                break
+    check_reversed_cut(graph, sorted(Abest), sorted(Bbest), cutbest, r_cutbest)
+    return sorted(Abest), sorted(Bbest), cutbest, r_cutbest
+
+
+def check_reversed_cut(graph: dict, A: list, B: list, cut: list, r_cut: list):
+    nodes_of_r_cut = list({x[0] for x in r_cut})
+    for node in nodes_of_r_cut:
+        dest_nodes = [x for x in graph[node] if x in A]
+        if len(dest_nodes) == len(graph[node]):
+            for x in B:
+                if node not in graph[x] and x != node:
+                    graph[node].append(x)
+                    break
+
+
+
+
+
+def make_cut_2(graph: dict) -> tuple:
     """Делает разрез в графе
 
     :param graph: граф
     :return: Граф изменяется, если потребуется. Возвращаются вершины, входящие в А и В, прямые ребра, обратные ребра
     """
+    def number_of_input_edges(node) -> int:
+        l = 0
+        for x in graph:
+            for y in graph[x]:
+                if y == node:
+                    l += 1
+        return l
+
     source = 0
     sink = len(graph) - 1
     buf = []
-    A = [source]
+    cut = []
+    A = [source, graph[source][0]]
+    buf.extend(list(set(graph[0])-set(A)))
+    buf.extend(graph[A[1]])
+    B = list(set(graph.keys())-set(A))
+    for node in A:
+        for x in graph[node]:
+            if x in B:
+                cut.append((node, x))
     if len(graph[source]) > 3:
         for x in graph[source]:
             if random() > 0.3:
@@ -368,16 +573,28 @@ def make_cut(graph: dict) -> tuple:
                 if not set(graph[node]) - cutA:
                     nodes = list(cutB)
                     nodes.remove(node)
-                    graph[node].append(nodes[0])
+                    while nodes:
+                        x = nodes.pop()
+                        if node not in graph[x]:
+                            graph[node].append(x)
+                            break
+    if len(reverse_cut) >= len(cut):
+        for x, y in reverse_cut:
+            if set(graph[x]) - cutA and number_of_input_edges(y) > 1:
+                graph[y].append(x)
+                graph[x].remove(y)
     if not reverse_cut:
-        k = randint(1, 2)
+        k = randint(1, 2) if sink > 6 else 1
         A = sorted(list(cutA))
         B = sorted(list(cutB))
-        while k:
-            graph[B[0]].append(A[len(A) - 1])
-            reverse_cut.append((B.pop(0), A.pop()))
-            k -= 1
-    return cutA, cutB, cut, reverse_cut
+        while k and A and B:
+            xa = A.pop()
+            xb = B.pop(0)
+            if xa not in graph[xb] and xb not in graph[xa]:
+                graph[xb].append(xa)
+                reverse_cut.append((xb, xa))
+                k -= 1
+    return sorted(list(cutA)), sorted(list(cutB)), cut, reverse_cut
 
 
 def make_throughput(graph: dict, cut_edges: list, min_weight=1, max_weight=60) -> None:
@@ -396,9 +613,8 @@ def make_throughput(graph: dict, cut_edges: list, min_weight=1, max_weight=60) -
             f = graph[x][y]
             add = 0
             if min_weight <= f < max_weight:
-                add = randint(1, max_weight-f+1)
+                add = randint(1, max_weight - f + 1)
             elif f < min_weight:
-                add = randint(min_weight-f+1, max_weight-f+1)
+                add = randint(min_weight - f + 1, max_weight - f + 1)
             graph[x][y] += add
     return
-

@@ -114,3 +114,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .idea/sqldialects.xml
+
+graph_generation.db
+

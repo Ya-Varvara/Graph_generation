@@ -10,7 +10,7 @@ from collections import deque
 # TODO Настроить выборку из БД
 
 
-def generate(nodes: int, min_weight=10, max_weight=70) -> None:
+def generate(nodes: int, min_weight=10, max_weight=70, info=False, draw=False) -> tuple:
     """
     Функция генерации сети с одним источником и одним стоком. При этом при решении данного графа можно построить хотя бы один увеличивающий маршрут
 
@@ -25,36 +25,42 @@ def generate(nodes: int, min_weight=10, max_weight=70) -> None:
 
     # Генерируем базу
     base = generate_graph_base(nodes)
-    print(f'=========== Сгенерированная база графа ===========\n{base}\n')
+    if info:
+        print(f'=========== Сгенерированная база графа ===========\n{base}\n')
 
     # Генерируем сильно связный граф
     make_strongly_connected(base)
-    print(f'=========== Сильно связный граф ===========\n{base}\n')
+    if info:
+        print(f'=========== Сильно связный граф ===========\n{base}\n')
 
     # Задаем разрез и определяем подмножества вершин и обратные ребра разреза
     cutA, cutB, cut, r_cut = make_cut(base)
 
-    print(f'=========== Сильно связный граф с изменениями ===========\n{base}\n')
+    if info:
+        print(f'=========== Сильно связный граф с изменениями ===========\n{base}\n')
 
     # Задаем максимальный поток на графе
     net, max_flow = make_flow(base, r_cut, avg - k, avg + k)
-    print(f'=========== Сильно связный граф с потоком ===========\n{net}\n')
+    if info:
+        print(f'=========== Сильно связный граф с потоком ===========\n{net}\n')
 
     # Определяем пропускные способности
     make_throughput(net, cut, min_weight, max_weight)
-    print(f'=========== Сильно связный граф с пропускными способностями ===========\n{net}\n')
+    if info:
+        print(f'=========== Сильно связный граф с пропускными способностями ===========\n{net}\n')
 
     # Рисуем граф
-    draw_graph(net)
-
-    print(f'=========== Заданный нами разрез ===========\nМножество А = {cutA}\nМножество В = {cutB}\nМаксимальный '
-          f'заданный поток = {max_flow}\nРебра = {cut}\nОбратные ребра = {r_cut}\n')
+    if draw:
+        draw_graph(net)
 
     # Проверяем по алгоритму Форда Фалкерсона
     ff_max_flow, ff_cutA, ff_cutB = FordFulkerson(net)
-    print(f'=========== По алгоритму Форда Фалкерсона ===========\nМножество А = {ff_cutA}\nМножество В = {ff_cutB}\n'
+    if info:
+        print(f'=========== Заданный нами разрез ===========\nМножество А = {cutA}\nМножество В = {cutB}\nМаксимальный '
+              f'заданный поток = {max_flow}\nРебра = {cut}\nОбратные ребра = {r_cut}\n')
+        print(f'=========== По алгоритму Форда Фалкерсона ===========\nМножество А = {ff_cutA}\nМножество В = {ff_cutB}\n'
           f'Максимальный заданный поток = {ff_max_flow}\n')
-    return
+    return net, nodes, cutA, cutB, cut, r_cut, max_flow
 
 
 def generate_graph_base(n: int) -> dict:

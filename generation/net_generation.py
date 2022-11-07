@@ -268,7 +268,7 @@ def make_strongly_connected(graph: dict) -> None:
     for node in graph:
         if node == n or node == 0:
             continue
-        if (len(graph[node]) == 3 and random() > 0.4) or (len(graph[node]) > 3):
+        if (len(graph[node]) == 3 and random() > 0.5) or (len(graph[node]) > 3):
             node_list = list(graph[node])
             k = node_list.pop(0)
             while node_list and edges_in[k] < 2:

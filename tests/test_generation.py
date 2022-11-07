@@ -307,3 +307,133 @@ class TestNetGeneration:
         assert cutA == A
         assert cutB == B
 
+    def test_net_generation_16(self):
+        n = 16
+        graph = gn.generate_graph_base(n)
+        gn.make_strongly_connected(graph)
+        cutA, cutB, cut, r_cut = gn.make_cut(graph)
+        net, flow1 = gn.make_flow(graph, r_cut)
+        assert gn.check_graph_flow(net) == 1, "{}\n{}\n{}\n{}".format(net, flow1, cutA, cutB)
+        gn.make_throughput(net, cut)
+        flow2, A, B = al.FordFulkerson(net)
+        assert flow1 == flow2, "{}".format(net)
+        assert cutA == A
+        assert cutB == B
+
+    def test_net_generation_17(self):
+        n = 17
+        graph = gn.generate_graph_base(n)
+        gn.make_strongly_connected(graph)
+        cutA, cutB, cut, r_cut = gn.make_cut(graph)
+        net, flow1 = gn.make_flow(graph, r_cut)
+        assert gn.check_graph_flow(net) == 1, "{}\n{}\n{}\n{}".format(net, flow1, cutA, cutB)
+        gn.make_throughput(net, cut)
+        flow2, A, B = al.FordFulkerson(net)
+        assert flow1 == flow2, "{}".format(net)
+        assert cutA == A
+        assert cutB == B
+
+    def test_net_generation_18(self):
+        n = 18
+        graph = gn.generate_graph_base(n)
+        gn.make_strongly_connected(graph)
+        cutA, cutB, cut, r_cut = gn.make_cut(graph)
+        net, flow1 = gn.make_flow(graph, r_cut)
+        assert gn.check_graph_flow(net) == 1, "{}\n{}\n{}\n{}".format(net, flow1, cutA, cutB)
+        gn.make_throughput(net, cut)
+        flow2, A, B = al.FordFulkerson(net)
+        assert flow1 == flow2, "{}".format(net)
+        assert cutA == A
+        assert cutB == B
+
+    def test_net_generation_19(self):
+        n = 19
+        graph = gn.generate_graph_base(n)
+        gn.make_strongly_connected(graph)
+        cutA, cutB, cut, r_cut = gn.make_cut(graph)
+        net, flow1 = gn.make_flow(graph, r_cut)
+        assert gn.check_graph_flow(net) == 1, "{}\n{}\n{}\n{}".format(net, flow1, cutA, cutB)
+        gn.make_throughput(net, cut)
+        flow2, A, B = al.FordFulkerson(net)
+        assert flow1 == flow2, "{}".format(net)
+        assert cutA == A
+        assert cutB == B
+
+    def test_net_generation_20(self):
+        n = 20
+        graph = gn.generate_graph_base(n)
+        gn.make_strongly_connected(graph)
+        cutA, cutB, cut, r_cut = gn.make_cut(graph)
+        net, flow1 = gn.make_flow(graph, r_cut)
+        assert gn.check_graph_flow(net) == 1, "{}\n{}\n{}\n{}".format(net, flow1, cutA, cutB)
+        gn.make_throughput(net, cut)
+        flow2, A, B = al.FordFulkerson(net)
+        assert flow1 == flow2, "{}".format(net)
+        assert cutA == A
+        assert cutB == B
+
+    def test_net_generation_21(self):
+        n = 21
+        graph = gn.generate_graph_base(n)
+        gn.make_strongly_connected(graph)
+        cutA, cutB, cut, r_cut = gn.make_cut(graph)
+        net, flow1 = gn.make_flow(graph, r_cut)
+        assert gn.check_graph_flow(net) == 1, "{}\n{}\n{}\n{}".format(net, flow1, cutA, cutB)
+        gn.make_throughput(net, cut)
+        flow2, A, B = al.FordFulkerson(net)
+        assert flow1 == flow2, "{}".format(net)
+        assert cutA == A
+        assert cutB == B
+
+    def test_net_generation_22(self):
+        n = 22
+        graph = gn.generate_graph_base(n)
+        gn.make_strongly_connected(graph)
+        cutA, cutB, cut, r_cut = gn.make_cut(graph)
+        net, flow1 = gn.make_flow(graph, r_cut)
+        assert gn.check_graph_flow(net) == 1, "{}\n{}\n{}\n{}".format(net, flow1, cutA, cutB)
+        gn.make_throughput(net, cut)
+        flow2, A, B = al.FordFulkerson(net)
+        assert flow1 == flow2, "{}".format(net)
+        assert cutA == A
+        assert cutB == B
+
+    def test_net_generation_23(self):
+        n = 23
+        graph = gn.generate_graph_base(n)
+        gn.make_strongly_connected(graph)
+        cutA, cutB, cut, r_cut = gn.make_cut(graph)
+        net, flow1 = gn.make_flow(graph, r_cut)
+        assert gn.check_graph_flow(net) == 1, "{}\n{}\n{}\n{}".format(net, flow1, cutA, cutB)
+        gn.make_throughput(net, cut)
+        flow2, A, B = al.FordFulkerson(net)
+        assert flow1 == flow2, "{}".format(net)
+        assert cutA == A
+        assert cutB == B
+
+    def test_net_generation_24(self):
+        n = 24
+        graph = gn.generate_graph_base(n)
+        gn.make_strongly_connected(graph)
+        cutA, cutB, cut, r_cut = gn.make_cut(graph)
+        net, flow1 = gn.make_flow(graph, r_cut)
+        assert gn.check_graph_flow(net) == 1, "{}\n{}\n{}\n{}".format(net, flow1, cutA, cutB)
+        gn.make_throughput(net, cut)
+        flow2, A, B = al.FordFulkerson(net)
+        assert flow1 == flow2, "{}".format(net)
+        assert cutA == A
+        assert cutB == B
+
+    def test_net_generation_25(self):
+        n = 25
+        graph = gn.generate_graph_base(n)
+        gn.make_strongly_connected(graph)
+        cutA, cutB, cut, r_cut = gn.make_cut(graph)
+        net, flow1 = gn.make_flow(graph, r_cut)
+        assert gn.check_graph_flow(net) == 1, "{}\n{}\n{}\n{}".format(net, flow1, cutA, cutB)
+        gn.make_throughput(net, cut)
+        flow2, A, B = al.FordFulkerson(net)
+        assert flow1 == flow2, "{}".format(net)
+        assert cutA == A
+        assert cutB == B
+

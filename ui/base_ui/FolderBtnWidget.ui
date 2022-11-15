@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>folder_btn_widget</class>
+ <widget class="QWidget" name="folder_btn_widget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>150</width>
+    <height>150</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>150</width>
+    <height>150</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>150</width>
+    <height>150</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QPushButton" name="folder_btn">
+   <property name="geometry">
+    <rect>
+     <x>5</x>
+     <y>5</y>
+     <width>140</width>
+     <height>140</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>130</width>
+     <height>130</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>140</width>
+     <height>140</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+	color: rgb(17,17,17);
+	border-width: 1px;
+	border-radius: 8px;
+	border-color: rgb(174, 171, 171);
+	border-style: solid;
+	background-color: rgb(255, 255, 255);
+	margin: 1px;
+	padding: 4px;
+}
+
+QPushButton:hover{
+	color: rgb(17,17,17);
+	border-width: 1px;
+	border-radius: 8px;
+	border-color: rgb(174, 171, 171);
+	border-style: solid;
+	background-color: rgb(249, 247, 247);
+	margin: 1px;
+	padding: 2px;
+}</string>
+   </property>
+   <property name="text">
+    <string>Папка</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

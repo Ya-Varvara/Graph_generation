@@ -11,18 +11,16 @@ class AddFolderDialog(QDialog):
         self.new_folder_name = None
 
         self.ui.buttonBox.accepted.connect(self.accept_data)
-        self.ui.buttonBox.rejected.connect(self.reject_data)
+        self.ui.buttonBox.rejected.connect(self.reject)
 
     def accept_data(self):
         if self.ui.name_folder.text().strip():
             print("Приемлемо")
             self.new_folder_name = self.ui.name_folder.text().strip()
             self.accept()
+        else:
+            return
 
-    def reject_data(self):
-        print("Галя, у нас отмена!")
-        self.close()
-
-    def exec_(self):
-        super(AddFolderDialog, self).exec_()
-        return self.new_folder_name
+    # def exec_(self):
+    #     super(AddFolderDialog, self).exec_()
+    #     return self.new_folder_name

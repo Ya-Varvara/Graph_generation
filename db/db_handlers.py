@@ -1,5 +1,6 @@
 import sqlite3
 import json
+from db.db_config import db_file_name
 
 
 class DataBase:
@@ -7,11 +8,11 @@ class DataBase:
     db_connection = None
     cursor = None
 
-    def __init__(self, db_file_name):
+    def __init__(self):
         print('__ Initialization __')
         try:
             self.db_name = db_file_name
-            self.db_connection = sqlite3.connect(db_file_name)
+            self.db_connection = sqlite3.connect(self.db_name)
             print('[INFO]  DB is successfully connected')
             self.cursor = self.db_connection.cursor()
 
@@ -19,7 +20,7 @@ class DataBase:
             self.cursor.execute(exist_query)
             result = self.cursor.fetchall()
             print(result)
-            if not result[0]:
+            if not result:
                 self.create_basic_tables()
 
             self.cursor.close()
@@ -120,9 +121,10 @@ class DataBase:
 
     def add_folder(self, data):
         values = data_to_db_value(data)
+        # print(values)
         try:
-            add_graph_query = f"""INSERT INTO folders (name) VALUES {values}"""
-            self.cursor.execute(add_graph_query)
+            # add_folder_query = f"""INSERT INTO folders (name) VALUES({data})"""
+            self.cursor.execute('INSERT INTO folders (name) VALUES(?)', values)
         except sqlite3.Error as error:
             print('[ERROR] Insert error ', error)
 # End of class
@@ -142,7 +144,8 @@ def json_to_data(data):
 
 
 def data_to_db_value(params):
-    query = [data_to_json(item) for item in params]
+    query = [data_to_json(item) for item in params.split(' ')]
+    print(query)
     return tuple(query)
 
 

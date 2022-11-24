@@ -110,20 +110,20 @@ class DataBase:
 
     def add_graph(self, name, folder=1, *args):
         all_data = [name, folder]
-        all_data.extend(list(*args))
-        values = data_to_db_value(all_data)
+        for arg in args:
+            all_data.append(arg)
+        values = graph_data_to_db_value(all_data)
         try:
             add_graph_query = f"""INSERT INTO graphs (name, folder_id, graph, nodes_number, set_a, set_b, cut, rev_cut, max_flow)
                                     VALUES {values}"""
             self.cursor.execute(add_graph_query)
+            print('[INFO] Graph was added')
         except sqlite3.Error as error:
             print('[ERROR] Insert error ', error)
 
     def add_folder(self, data):
         values = data_to_db_value(data)
-        # print(values)
         try:
-            # add_folder_query = f"""INSERT INTO folders (name) VALUES({data})"""
             self.cursor.execute('INSERT INTO folders (name) VALUES(?)', values)
         except sqlite3.Error as error:
             print('[ERROR] Insert error ', error)
@@ -145,6 +145,12 @@ def json_to_data(data):
 
 def data_to_db_value(params):
     query = [data_to_json(item) for item in params.split(' ')]
+    print(query)
+    return tuple(query)
+
+
+def graph_data_to_db_value(params):
+    query = [data_to_json(item) for item in params]
     print(query)
     return tuple(query)
 

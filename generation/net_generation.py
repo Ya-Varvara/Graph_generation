@@ -10,7 +10,7 @@ from collections import deque
 # TODO Настроить выборку из БД
 
 
-def generate(nodes: int, min_weight=10, max_weight=70, info=False, draw=False) -> tuple:
+def generate_graph(nodes: int, min_weight=10, max_weight=70, info=False, draw=False) -> tuple:
     """
     Функция генерации сети с одним источником и одним стоком. При этом при решении данного графа можно построить хотя бы один увеличивающий маршрут
 
@@ -60,7 +60,12 @@ def generate(nodes: int, min_weight=10, max_weight=70, info=False, draw=False) -
               f'заданный поток = {max_flow}\nРебра = {cut}\nОбратные ребра = {r_cut}\n')
         print(f'=========== По алгоритму Форда Фалкерсона ===========\nМножество А = {ff_cutA}\nМножество В = {ff_cutB}\n'
           f'Максимальный заданный поток = {ff_max_flow}\n')
-    return net, nodes, cutA, cutB, cut, r_cut, max_flow
+    if max_flow == ff_max_flow and cutA == ff_cutA and cutB == ff_cutB:
+        return True, net, nodes, cutA, cutB, cut, r_cut, max_flow
+    else:
+        return False, 0
+
+
 
 
 def generate_graph_base(n: int) -> dict:

@@ -20,7 +20,3 @@ class AddFolderDialog(QDialog):
             self.accept()
         else:
             return
-
-    # def exec_(self):
-    #     super(AddFolderDialog, self).exec_()
-    #     return self.new_folder_name

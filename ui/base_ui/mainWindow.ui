@@ -160,7 +160,7 @@ QScrollArea{
     <string>Сгенерировать граф</string>
    </property>
   </widget>
-  <widget class="QFrame" name="my_folders_frame">
+  <widget class="QWidget" name="my_folders_widget" native="true">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -171,12 +171,6 @@ QScrollArea{
    </property>
    <property name="styleSheet">
     <string notr="true"/>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::StyledPanel</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
    </property>
    <widget class="QPushButton" name="create_folder_btn">
     <property name="geometry">
@@ -251,7 +245,7 @@ QScrollArea{
     </property>
    </widget>
   </widget>
-  <widget class="QFrame" name="generation_frame">
+  <widget class="QWidget" name="generation_widget" native="true">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -262,12 +256,6 @@ QScrollArea{
    </property>
    <property name="styleSheet">
     <string notr="true">background-color: rgb(255, 255, 255);</string>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::StyledPanel</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
    </property>
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
@@ -341,6 +329,12 @@ QScrollArea{
          <width>70</width>
          <height>27</height>
         </size>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>30</number>
        </property>
       </widget>
      </item>
@@ -444,6 +438,12 @@ QScrollArea{
          <height>27</height>
         </size>
        </property>
+       <property name="minimum">
+        <number>7</number>
+       </property>
+       <property name="maximum">
+        <number>15</number>
+       </property>
       </widget>
      </item>
      <item row="2" column="0">
@@ -508,6 +508,15 @@ QScrollArea{
          <width>60</width>
          <height>23</height>
         </size>
+       </property>
+       <property name="inputMethodHints">
+        <set>Qt::ImhDigitsOnly</set>
+       </property>
+       <property name="inputMask">
+        <string/>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -574,7 +583,7 @@ QScrollArea{
     </property>
    </widget>
   </widget>
-  <widget class="QFrame" name="graph_frame">
+  <widget class="QWidget" name="graph_widget" native="true">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -583,13 +592,7 @@ QScrollArea{
      <height>550</height>
     </rect>
    </property>
-   <property name="frameShape">
-    <enum>QFrame::StyledPanel</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
-   </property>
-   <widget class="QTextEdit" name="textEdit">
+   <widget class="QTextEdit" name="graph_info">
     <property name="geometry">
      <rect>
       <x>480</x>
@@ -599,7 +602,7 @@ QScrollArea{
      </rect>
     </property>
    </widget>
-   <widget class="QTableWidget" name="tableWidget_2">
+   <widget class="QTableWidget" name="weights_table">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -622,11 +625,23 @@ QScrollArea{
       <pointsize>8</pointsize>
      </font>
     </property>
+    <property name="cursor" stdset="0">
+     <cursorShape>ArrowCursor</cursorShape>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::DefaultContextMenu</enum>
+    </property>
     <property name="frameShape">
      <enum>QFrame::HLine</enum>
     </property>
     <property name="frameShadow">
      <enum>QFrame::Plain</enum>
+    </property>
+    <property name="sizeAdjustPolicy">
+     <enum>QAbstractScrollArea::AdjustToContents</enum>
+    </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::NoEditTriggers</set>
     </property>
     <property name="selectionMode">
      <enum>QAbstractItemView::ExtendedSelection</enum>
@@ -647,10 +662,10 @@ QScrollArea{
      <bool>true</bool>
     </property>
     <property name="rowCount">
-     <number>13</number>
+     <number>7</number>
     </property>
     <property name="columnCount">
-     <number>13</number>
+     <number>7</number>
     </property>
     <attribute name="horizontalHeaderVisible">
      <bool>true</bool>
@@ -659,13 +674,13 @@ QScrollArea{
      <bool>false</bool>
     </attribute>
     <attribute name="horizontalHeaderDefaultSectionSize">
-     <number>32</number>
+     <number>30</number>
     </attribute>
     <attribute name="horizontalHeaderHighlightSections">
      <bool>false</bool>
     </attribute>
     <attribute name="horizontalHeaderMinimumSectionSize">
-     <number>20</number>
+     <number>0</number>
     </attribute>
     <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
      <bool>false</bool>
@@ -673,11 +688,17 @@ QScrollArea{
     <attribute name="verticalHeaderVisible">
      <bool>true</bool>
     </attribute>
+    <attribute name="verticalHeaderCascadingSectionResizes">
+     <bool>true</bool>
+    </attribute>
     <attribute name="verticalHeaderDefaultSectionSize">
-     <number>32</number>
+     <number>30</number>
+    </attribute>
+    <attribute name="verticalHeaderHighlightSections">
+     <bool>false</bool>
     </attribute>
     <attribute name="verticalHeaderMinimumSectionSize">
-     <number>20</number>
+     <number>0</number>
     </attribute>
     <attribute name="verticalHeaderShowSortIndicator" stdset="0">
      <bool>false</bool>
@@ -692,18 +713,6 @@ QScrollArea{
     <row/>
     <row/>
     <row/>
-    <row/>
-    <row/>
-    <row/>
-    <row/>
-    <row/>
-    <row/>
-    <column/>
-    <column/>
-    <column/>
-    <column/>
-    <column/>
-    <column/>
     <column/>
     <column/>
     <column/>
@@ -845,7 +854,7 @@ QScrollArea{
     </property>
    </widget>
   </widget>
-  <widget class="QFrame" name="my_graphs_frame">
+  <widget class="QWidget" name="my_graphs_widget" native="true">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -856,12 +865,6 @@ QScrollArea{
    </property>
    <property name="styleSheet">
     <string notr="true"/>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::StyledPanel</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
    </property>
    <widget class="QPushButton" name="download_graphs_btn">
     <property name="geometry">
@@ -1076,10 +1079,10 @@ QScrollArea{
      <string notr="true"/>
     </property>
     <property name="text">
-     <string>Скачать графы</string>
+     <string>Посмотреть граф</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="show_graph_btn_2">
+   <widget class="QPushButton" name="back_to_folders_btn">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -1098,10 +1101,10 @@ QScrollArea{
   </widget>
   <zorder>my_folders_btn</zorder>
   <zorder>generation_btn</zorder>
-  <zorder>generation_frame</zorder>
-  <zorder>my_folders_frame</zorder>
-  <zorder>graph_frame</zorder>
-  <zorder>my_graphs_frame</zorder>
+  <zorder>my_folders_widget</zorder>
+  <zorder>generation_widget</zorder>
+  <zorder>my_graphs_widget</zorder>
+  <zorder>graph_widget</zorder>
  </widget>
  <resources/>
  <connections/>

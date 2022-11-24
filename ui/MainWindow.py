@@ -36,7 +36,7 @@ class MainWindow(QWidget):
         self.ui.close_graph_frame_btn.clicked.connect(self.set_previous_widget)
         self.ui.add_graph_btn.clicked.connect(self.set_add_graph_dialog)
         self.ui.back_to_folders_btn.clicked.connect(self.set_previous_widget)
-        self.ui.show_graph_btn.clicked.connect(self.set_frame_graph)
+        self.ui.graphs_table.cellDoubleClicked.connect(self.show_graph_from_table)
     # end def __init__
 
     def set_add_folder_dialog(self):
@@ -116,11 +116,17 @@ class MainWindow(QWidget):
     # end def set_frame_folders
 
     def set_frame_graph(self, graph_data=None):
+        print("In graph frame")
         self.current_widgets[-1].close()
         self.current_widgets.append(self.ui.graph_widget)
         self.ui.graph_widget.show()
 
-        check, net, nodes, cutA, cutB, cut, r_cut, max_flow = graph_data
+        if len(graph_data) == 8:
+            check, net, nodes, cutA, cutB, cut, r_cut, max_flow = graph_data
+            self.ui.add_graph_btn.show()
+        else:
+            graph_id, name, folder, net, nodes, max_flow, cutA, cutB, cut, r_cut = graph_data
+            self.ui.add_graph_btn.hide()
 
         info = [f"Кол-во вершин: {nodes}",
                 f"Максимальный поток: {max_flow}",
@@ -136,7 +142,6 @@ class MainWindow(QWidget):
         self.ui.weights_table.setRowCount(nodes)
         self.ui.weights_table.setColumnCount(nodes)
         labels = [f'x{node+1}' for node in range(nodes)]
-        # print(lables)
         self.ui.weights_table.setHorizontalHeaderLabels(labels)
         self.ui.weights_table.setVerticalHeaderLabels(labels)
         header_hor = self.ui.weights_table.horizontalHeader()
@@ -144,24 +149,42 @@ class MainWindow(QWidget):
         for i in range(nodes):
             header_ver.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
             header_hor.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
-        # print(net)
+
         for node in net:
             for x in net[node]:
-                self.ui.weights_table.setItem(node, x, QtWidgets.QTableWidgetItem(str(net[node][x])))
-                # print(node, x)
+                self.ui.weights_table.setItem(int(node), int(x), QtWidgets.QTableWidgetItem(str(net[node][x])))
 
-
-        item_size = self.ui.weights_table.size()
-
-        print(self.current_widgets)
-        print("Graph info")
     # end def set_frame_graph
 
-    def set_frame_table_graph(self, folser_id=None):
+    def set_frame_table_graph(self, folder_id):
         self.current_widgets[-1].close()
         self.current_widgets.append(self.ui.my_graphs_widget)
         self.ui.my_graphs_widget.show()
+
+        graphs = self.get_graph_from_db(folder_id)
+
+        self.ui.graphs_table.setRowCount(len(graphs))
+        self.ui.graphs_table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        for i in range(3):
+            self.ui.graphs_table.horizontalHeader().setSectionResizeMode(i+1, QtWidgets.QHeaderView.Stretch)
+
+        for i, graph in enumerate(graphs):
+            self.ui.graphs_table.setItem(i, 0, QtWidgets.QTableWidgetItem(str(graph[0])))
+            self.ui.graphs_table.setItem(i, 1, QtWidgets.QTableWidgetItem(graph[1]))
+            self.ui.graphs_table.setItem(i, 2, QtWidgets.QTableWidgetItem(str(graph[2])))
+            self.ui.graphs_table.setItem(i, 3, QtWidgets.QTableWidgetItem(str(graph[3])))
     # end def set_frame_table_graph
+
+    def show_graph_from_table(self, row, column):
+        print(row)
+        graph_id = str(self.ui.graphs_table.item(row, 0).text())
+        print(graph_id)
+        with self.db:
+            graph_info = tuple(self.db.get_graph(graph_id))
+        print(graph_info)
+        self.set_frame_graph(graph_info)
+
+    # end def show_graph_from_table
 
     def set_add_graph_dialog(self):
         dialog = AddGraphDialog(self.folders)
@@ -186,3 +209,7 @@ class MainWindow(QWidget):
             return self.db.get_folders()
     # end def get_all_folders
 
+    def get_graph_from_db(self, folder_id) -> list:
+        with self.db:
+            return self.db.get_graphs(folder_id)
+    # end def get_graph_from_db

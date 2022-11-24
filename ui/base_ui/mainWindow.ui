@@ -925,6 +925,9 @@ QScrollArea{
     <property name="midLineWidth">
      <number>0</number>
     </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::SelectedClicked</set>
+    </property>
     <property name="verticalScrollMode">
      <enum>QAbstractItemView::ScrollPerPixel</enum>
     </property>
@@ -1039,10 +1042,12 @@ QScrollArea{
     </row>
     <column>
      <property name="text">
-      <string>Название</string>
+      <string>ID</string>
      </property>
-     <property name="textAlignment">
-      <set>AlignCenter</set>
+    </column>
+    <column>
+     <property name="text">
+      <string>Название</string>
      </property>
     </column>
     <column>
@@ -1055,32 +1060,6 @@ QScrollArea{
       <string>Максимальный поток</string>
      </property>
     </column>
-    <column>
-     <property name="text">
-      <string>Минимальная пропускная способность</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Максимальная пропускная способность</string>
-     </property>
-    </column>
-   </widget>
-   <widget class="QPushButton" name="show_graph_btn">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>30</y>
-      <width>140</width>
-      <height>40</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true"/>
-    </property>
-    <property name="text">
-     <string>Посмотреть граф</string>
-    </property>
    </widget>
    <widget class="QPushButton" name="back_to_folders_btn">
     <property name="geometry">
@@ -1099,12 +1078,6 @@ QScrollArea{
     </property>
    </widget>
   </widget>
-  <zorder>my_folders_btn</zorder>
-  <zorder>generation_btn</zorder>
-  <zorder>my_folders_widget</zorder>
-  <zorder>generation_widget</zorder>
-  <zorder>my_graphs_widget</zorder>
-  <zorder>graph_widget</zorder>
  </widget>
  <resources/>
  <connections/>

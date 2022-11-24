@@ -87,15 +87,25 @@ class DataBase:
         except sqlite3.Error as error:
             print('[ERROR] Connection error ', error)
 
-    def get_graphs(self, folder_id=None):
+    def get_graphs(self, folder_id):
         try:
-            if folder_id is None:
-                get_data_query = """SELECT * FROM graphs"""
-            else:
-                get_data_query = F"""SELECT * FROM graphs WHERE folder_id={folder_id}"""
+            get_data_query = F"""SELECT id, name, nodes_number, max_flow  FROM graphs WHERE folder_id={folder_id}"""
             self.cursor.execute(get_data_query)
             res = self.cursor.fetchall()
             return db_value_to_data(res)
+        except sqlite3.Error as error:
+            print('[ERROR] Select error ', error)
+
+    def get_graph(self, graph_id=None):
+        try:
+            # if folder_id is None:
+            #     get_data_query = """SELECT * FROM graphs"""
+            # else:
+            get_data_query = F"""SELECT * FROM graphs WHERE id={graph_id}"""
+            self.cursor.execute(get_data_query)
+            res = self.cursor.fetchall()
+            # print(res)
+            return db_value_to_data(res)[0]
         except sqlite3.Error as error:
             print('[ERROR] Select error ', error)
 

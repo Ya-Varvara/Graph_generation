@@ -16,7 +16,7 @@ class DataBase:
             print('[INFO]  DB is successfully connected')
             self.cursor = self.db_connection.cursor()
 
-            exist_query = """SELECT  name FROM sqlite_master WHERE type='table' and name='folders' or name='graphs'"""
+            exist_query = """SELECT name FROM sqlite_master WHERE type='table' and name='folders' or name='graphs'"""
             self.cursor.execute(exist_query)
             result = self.cursor.fetchall()
             print(result)

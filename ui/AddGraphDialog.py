@@ -1,3 +1,5 @@
+from PyQt5.QtCore import QRegExp
+from PyQt5.QtGui import QRegExpValidator
 from PyQt5.QtWidgets import QDialog
 from ui.base_ui.AddGraphDialog import Ui_add_graph_dialog
 
@@ -7,6 +9,9 @@ class AddGraphDialog(QDialog):
         super(AddGraphDialog, self).__init__()
         self.ui = Ui_add_graph_dialog()
         self.ui.setupUi(self)
+
+        text_validator = QRegExpValidator(QRegExp(r'^[\w]+$'))
+        self.ui.name_graph.setValidator(text_validator)
 
         self.folders = folders_info
         folder_names = [folder[1] for folder in folders_info]

@@ -266,7 +266,7 @@ QScrollArea{
       <height>221</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0">
+    <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0">
      <property name="sizeConstraint">
       <enum>QLayout::SetNoConstraint</enum>
      </property>
@@ -326,7 +326,7 @@ QScrollArea{
        </property>
        <property name="minimumSize">
         <size>
-         <width>70</width>
+         <width>100</width>
          <height>27</height>
         </size>
        </property>
@@ -335,49 +335,6 @@ QScrollArea{
        </property>
        <property name="maximum">
         <number>30</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_min_troughput">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>220</width>
-         <height>40</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>220</width>
-         <height>40</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="text">
-        <string>Минимальная пропускная способность</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
-       </property>
-       <property name="margin">
-        <number>3</number>
        </property>
       </widget>
      </item>
@@ -424,8 +381,8 @@ QScrollArea{
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QSpinBox" name="nodes_num">
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_min_troughput">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -434,15 +391,67 @@ QScrollArea{
        </property>
        <property name="minimumSize">
         <size>
-         <width>70</width>
+         <width>220</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>220</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>MS Shell Dlg 2</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>Минимальная пропускная способность</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+       <property name="margin">
+        <number>3</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="min_troughput">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
          <height>27</height>
         </size>
        </property>
-       <property name="minimum">
-        <number>7</number>
+       <property name="maximumSize">
+        <size>
+         <width>60</width>
+         <height>23</height>
+        </size>
        </property>
-       <property name="maximum">
-        <number>15</number>
+       <property name="inputMethodHints">
+        <set>Qt::ImhDigitsOnly</set>
+       </property>
+       <property name="inputMask">
+        <string/>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -489,8 +498,8 @@ QScrollArea{
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="min_troughput">
+     <item row="0" column="1">
+      <widget class="QSpinBox" name="nodes_num">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -499,24 +508,15 @@ QScrollArea{
        </property>
        <property name="minimumSize">
         <size>
-         <width>70</width>
+         <width>100</width>
          <height>27</height>
         </size>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>60</width>
-         <height>23</height>
-        </size>
+       <property name="minimum">
+        <number>7</number>
        </property>
-       <property name="inputMethodHints">
-        <set>Qt::ImhDigitsOnly</set>
-       </property>
-       <property name="inputMask">
-        <string/>
-       </property>
-       <property name="frame">
-        <bool>true</bool>
+       <property name="maximum">
+        <number>15</number>
        </property>
       </widget>
      </item>
@@ -530,7 +530,72 @@ QScrollArea{
        </property>
        <property name="minimumSize">
         <size>
-         <width>70</width>
+         <width>100</width>
+         <height>27</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>60</width>
+         <height>23</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_folder_name">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>220</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>220</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>MS Shell Dlg 2</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>Название папки</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+       <property name="margin">
+        <number>3</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLineEdit" name="folder_name">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
          <height>27</height>
         </size>
        </property>
@@ -1078,6 +1143,12 @@ QScrollArea{
     </property>
    </widget>
   </widget>
+  <zorder>my_folders_btn</zorder>
+  <zorder>generation_btn</zorder>
+  <zorder>my_folders_widget</zorder>
+  <zorder>graph_widget</zorder>
+  <zorder>my_graphs_widget</zorder>
+  <zorder>generation_widget</zorder>
  </widget>
  <resources/>
  <connections/>

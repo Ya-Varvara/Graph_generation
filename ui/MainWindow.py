@@ -1,5 +1,8 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QWidget, QHeaderView
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtGui import QRegExpValidator
+from PyQt5.QtCore import QRegExp
+
 from ui.base_ui.mainWindow import Ui_main_window
 from ui.AddFolderDialog import AddFolderDialog
 from ui.FolderBtnWidget import FolderBtnWidget
@@ -37,6 +40,16 @@ class MainWindow(QWidget):
         self.ui.add_graph_btn.clicked.connect(self.set_add_graph_dialog)
         self.ui.back_to_folders_btn.clicked.connect(self.set_previous_widget)
         self.ui.graphs_table.cellDoubleClicked.connect(self.show_graph_from_table)
+        self.ui.graph_num.textChanged.connect(self.show_full_generation_form)
+
+        int_validator = QRegExpValidator(QRegExp(r'[0-9]+'))
+        text_validator = QRegExpValidator(QRegExp(r'^[\w]+$'))
+
+        self.ui.min_troughput.setValidator(int_validator)
+        self.ui.max_troughput.setValidator(int_validator)
+        self.ui.folder_name.setValidator(text_validator)
+
+
     # end def __init__
 
     def set_add_folder_dialog(self):
@@ -65,31 +78,75 @@ class MainWindow(QWidget):
 
         self.ui.generation_widget.show()
 
+        self.ui.folder_name.clear()
         self.ui.nodes_num.cleanText()
         self.ui.graph_num.cleanText()
         self.ui.min_troughput.clear()
         self.ui.max_troughput.clear()
+
+        self.ui.folder_name.hide()
+        self.ui.label_folder_name.hide()
     # end def set_frame_generation
+
+    def show_full_generation_form(self, value):
+        if int(value) > 1:
+            self.ui.folder_name.show()
+            self.ui.label_folder_name.show()
+        else:
+            self.ui.folder_name.hide()
+            self.ui.label_folder_name.hide()
+    # end def show_full_generation_form
 
     def check_generation_input(self):
         nodes_num = int(self.ui.nodes_num.text())
         graph_num = int(self.ui.graph_num.text())
+
         if self.ui.min_troughput.text() and self.ui.max_troughput.text():
             min_th = int(self.ui.min_troughput.text())
             max_th = int(self.ui.max_troughput.text())
+
             if max_th - min_th >= 10:
                 if self.generated_graphs:
                     self.generated_graphs.clear()
-                print(nodes_num, graph_num, min_th, max_th)
-                graph_data = generate_graph(nodes_num, min_th, max_th)
-                while not graph_data[0]:
+
+                graph_data = None
+
+                for _ in range(graph_num):
                     graph_data = generate_graph(nodes_num, min_th, max_th)
-                self.generated_graphs.append(graph_data)
-                self.ui.nodes_num.cleanText()
-                self.ui.graph_num.cleanText()
-                self.ui.min_troughput.clear()
-                self.ui.max_troughput.clear()
-                self.set_frame_graph(graph_data)
+                    while not graph_data[0]:
+                        graph_data = generate_graph(nodes_num, min_th, max_th)
+                    self.generated_graphs.append(graph_data)
+
+                if graph_num == 1:
+                    self.set_frame_graph(graph_data)
+                else:
+                    new_folder_name = self.ui.folder_name.text().strip()
+
+                    if new_folder_name:
+                        with self.db:
+                            self.db.add_folder(new_folder_name)
+                            self.folders = self.db.get_folders()
+
+                        folder_id = list(filter(lambda x: x[1] == new_folder_name, self.folders))[0][0]
+
+                        with self.db:
+                            for i in range(len(self.generated_graphs)):
+                                check, net, nodes, cutA, cutB, cut, r_cut, max_flow = self.generated_graphs.pop()
+                                graph_name = f'graph_{i+1}'
+                                self.db.add_graph(graph_name, folder_id, net, nodes, cutA, cutB, cut, r_cut, max_flow)
+
+                        self.ui.graph_num.setValue(self.ui.graph_num.minimum())
+                        self.ui.nodes_num.setValue(self.ui.nodes_num.minimum())
+                        self.ui.min_troughput.clear()
+                        self.ui.max_troughput.clear()
+                        self.ui.folder_name.clear()
+                        self.ui.folder_name.hide()
+                        self.ui.label_folder_name.hide()
+
+                        self.set_frame_table_graph(folder_id)
+                    else:
+                        print("Enter new folder name")
+
             else:
                 print("max <= min")
         else:
@@ -153,7 +210,6 @@ class MainWindow(QWidget):
         for node in net:
             for x in net[node]:
                 self.ui.weights_table.setItem(int(node), int(x), QtWidgets.QTableWidgetItem(str(net[node][x])))
-
     # end def set_frame_graph
 
     def set_frame_table_graph(self, folder_id):
@@ -183,7 +239,6 @@ class MainWindow(QWidget):
             graph_info = tuple(self.db.get_graph(graph_id))
         print(graph_info)
         self.set_frame_graph(graph_info)
-
     # end def show_graph_from_table
 
     def set_add_graph_dialog(self):

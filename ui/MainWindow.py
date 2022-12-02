@@ -47,6 +47,7 @@ class MainWindow(QWidget):
         self.ui.delete_graph_btn.clicked.connect(self.delete_graph)
         self.ui.delete_folder_btn.clicked.connect(self.delete_folder)
         self.ui.download_graphs_btn.clicked.connect(self.save_graphs_to_file)
+        self.ui.save_graph_btn.clicked.connect(self.save_one_graph)
 
         int_validator = QRegExpValidator(QRegExp(r'[0-9]+'))
         text_validator = QRegExpValidator(QRegExp(r'^[\w]+$'))
@@ -165,6 +166,8 @@ class MainWindow(QWidget):
         self.current_widgets.append(self.ui.my_folders_widget)
         self.ui.my_folders_widget.show()
 
+        self.clear_area()
+
         row, column = 0, 0
         for folder in self.folders:
             folder_btn = FolderBtnWidget(folder[0], folder[1])
@@ -176,6 +179,12 @@ class MainWindow(QWidget):
                 column = 0
     # end def set_frame_folders
 
+    def clear_area(self):
+        while self.ui.gridLayoutFolderBtns.count() > 0:
+            item = self.ui.gridLayoutFolderBtns.takeAt(0)
+            item.widget().deleteLater()
+    # end def clear_area
+
     def set_frame_graph(self, graph_data=None):
         print("In graph frame")
         self.current_widgets[-1].close()
@@ -185,9 +194,13 @@ class MainWindow(QWidget):
         if len(graph_data) == 8:
             check, net, nodes, cutA, cutB, cut, r_cut, max_flow = graph_data
             self.ui.add_graph_btn.show()
+            self.ui.save_graph_btn.hide()
+            self.ui.delete_graph_btn.hide()
         else:
             graph_id, name, folder, net, nodes, max_flow, cutA, cutB, cut, r_cut = graph_data
             self.ui.add_graph_btn.hide()
+            self.ui.save_graph_btn.show()
+            self.ui.delete_graph_btn.show()
 
         info = [f"Кол-во вершин: {nodes}",
                 f"Максимальный поток: {max_flow}",
@@ -221,7 +234,14 @@ class MainWindow(QWidget):
         self.current_widgets.append(self.ui.my_graphs_widget)
         self.ui.my_graphs_widget.show()
 
+        print(self.current_widgets)
+
         self.current_folder_id = folder_id
+
+        if folder_id == 1:
+            self.ui.delete_folder_btn.hide()
+        else:
+            self.ui.delete_folder_btn.show()
 
         graphs = self.get_graph_from_db(folder_id)
 
@@ -279,22 +299,32 @@ class MainWindow(QWidget):
     def delete_graph(self):
         with self.db:
             self.db.delete_graph(self.current_graph_id)
-        self.set_previous_widget()
+        print(self.current_widgets)
+        self.current_widgets.pop().close()
+        self.current_widgets.pop().close()
+        print(self.current_widgets)
+        print(self.current_folder_id)
+        self.set_frame_table_graph(self.current_folder_id)
     # end def delete_graph
 
     def delete_folder(self, folder_id):
         with self.db:
             self.db.delete_folder(self.current_folder_id)
 
-        self.ui.gridLayoutFolderBtns.removeWidget()
+        # self.ui.gridLayoutFolderBtns.removeWidget()
+        self.folders = self.get_all_folders()
+        print(self.folders)
 
-        while self.current_widgets:
-            self.current_widgets.pop().close()
+        self.current_widgets.pop().close()
+        print(self.current_widgets)
+
         self.set_frame_folders()
     # end def delete_folder
 
     def save_graphs_to_file(self):
         file_name = self.save_file_dialog()
+        if file_name == 0:
+            return
         with self.db:
             graphs = self.db.get_graph_net(self.current_folder_id)
         df_list = []
@@ -302,6 +332,17 @@ class MainWindow(QWidget):
             df_list.append(to_dataframe(graph[0]))
         save_to_file(df_list, file_name)
     # end def save_graphs_to_file
+
+    def save_one_graph(self):
+        file_name = self.save_file_dialog()
+        if file_name == 0:
+            return
+        with self.db:
+            graph = self.db.get_graph(self.current_graph_id)
+        print(graph)
+        df_list = [to_dataframe(graph[3])]
+        save_to_file(df_list, file_name)
+    # end def save_one_graph
 
     def save_file_dialog(self):
         file_filter = 'Data File (*.xlsx *.csv *.dat);; Excel File (*.xlsx *.xls)'
@@ -312,5 +353,10 @@ class MainWindow(QWidget):
             initialFilter='Excel File (*.xlsx *.xls)',
             directory='new_file.xlsx'
         )
-        return response[0]
+        print(response)
+        if response[0]:
+            return response[0]
+        else:
+            print("Return")
+            return 0
     # end def save_file_dialog

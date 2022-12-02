@@ -155,8 +155,11 @@ class DataBase:
     def delete_folder(self, folder_id):
         try:
             delete_folder_query = f"""DELETE FROM folders WHERE id={folder_id}"""
+            delete_graphs_query = f"""DELETE FROM graphs WHERE folder_id={folder_id}"""
             self.cursor.execute(delete_folder_query)
             print('[INFO] Folder was deleted')
+            self.cursor.execute(delete_graphs_query)
+            print('[INFO] Graphs were deleted')
         except sqlite3.Error as error:
             print('[ERROR] Delete error ', error)
 

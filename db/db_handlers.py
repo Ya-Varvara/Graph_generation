@@ -98,16 +98,22 @@ class DataBase:
 
     def get_graph(self, graph_id=None):
         try:
-            # if folder_id is None:
-            #     get_data_query = """SELECT * FROM graphs"""
-            # else:
             get_data_query = F"""SELECT * FROM graphs WHERE id={graph_id}"""
             self.cursor.execute(get_data_query)
             res = self.cursor.fetchall()
-            # print(res)
             return db_value_to_data(res)[0]
         except sqlite3.Error as error:
             print('[ERROR] Select error ', error)
+
+    def get_graph_net(self, folder_id):
+        try:
+            get_data_query = F"""SELECT graph FROM graphs WHERE folder_id={folder_id}"""
+            self.cursor.execute(get_data_query)
+            res = self.cursor.fetchall()
+            # print(res)
+            return db_value_to_data(res)
+        except sqlite3.Error as error:
+            print('[ERROR] Get error ', error)
 
     def get_folders(self):
         try:
@@ -129,7 +135,7 @@ class DataBase:
             self.cursor.execute(add_graph_query)
             print('[INFO] Graph was added')
         except sqlite3.Error as error:
-            print('[ERROR] Insert error ', error)
+            print('[ERROR] Add error ', error)
 
     def add_folder(self, data):
         values = data_to_db_value(data)
@@ -137,6 +143,23 @@ class DataBase:
             self.cursor.execute('INSERT INTO folders (name) VALUES(?)', values)
         except sqlite3.Error as error:
             print('[ERROR] Insert error ', error)
+
+    def delete_graph(self, graph_id):
+        try:
+            delete_graph_query = f"""DELETE FROM graphs WHERE id={graph_id}"""
+            self.cursor.execute(delete_graph_query)
+            print('[INFO] Graph was deleted')
+        except sqlite3.Error as error:
+            print('[ERROR] Delete error ', error)
+
+    def delete_folder(self, folder_id):
+        try:
+            delete_folder_query = f"""DELETE FROM folders WHERE id={folder_id}"""
+            self.cursor.execute(delete_folder_query)
+            print('[INFO] Folder was deleted')
+        except sqlite3.Error as error:
+            print('[ERROR] Delete error ', error)
+
 # End of class
 
 

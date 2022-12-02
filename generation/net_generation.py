@@ -40,7 +40,7 @@ def generate_graph(nodes: int, min_weight=10, max_weight=70, info=False, draw=Fa
         print(f'=========== Сильно связный граф с изменениями ===========\n{base}\n')
 
     # Задаем максимальный поток на графе
-    net, max_flow = make_flow(base, r_cut, avg - k, avg + k)
+    net, max_flow = make_flow(base, r_cut, avg, avg + 4*k)
     if info:
         print(f'=========== Сильно связный граф с потоком ===========\n{net}\n')
 
@@ -454,12 +454,12 @@ def make_cut(graph: dict) -> tuple:
         cut.extend([(node, i) for i in graph[node] if i in B])
         r_cut = [(s, d) for s in graph for d in graph[s] if s in B and d in A]
         # print("in cycle", A, B, cut, r_cut)
-        if (len(r_cutbest) == 0 and (len(r_cut) > 0 or len(Abest) <= 3)) or \
-           (len(r_cutbest) == 1 and (len(r_cut) == 1 and len(A) <= sink//2 and (len(cut) < len(cutbest) or len(Abest) < 3))):
+        if (len(r_cutbest) == 0 and (len(r_cut) > 0 or len(Abest) <= 4)) or \
+           (len(r_cutbest) <= 2 and (len(r_cut) < 4 and len(A) <= sink//2 and (len(cut) <= len(cutbest) or len(Abest) <= 3))):
             r_cutbest, Abest, Bbest, cutbest = r_cut.copy(), A.copy(), B.copy(), cut.copy()
-        else:
-            if 0 < len(r_cut) < len(r_cutbest):
-                r_cutbest, Abest, Bbest, cutbest = r_cut.copy(), A.copy(), B.copy(), cut.copy()
+        # else:
+        #     if 0 < len(r_cut) < len(r_cutbest):
+        #         r_cutbest, Abest, Bbest, cutbest = r_cut.copy(), A.copy(), B.copy(), cut.copy()
                 # print("Best is new", Abest, Bbest, cutbest, r_cutbest)
     if len(r_cutbest) == 0:
         x = A[len(A)-1]

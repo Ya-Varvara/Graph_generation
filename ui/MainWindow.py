@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget, QFileDialog
 from PyQt5.QtGui import QRegExpValidator
 from PyQt5.QtCore import QRegExp
 
@@ -8,12 +8,15 @@ from ui.AddFolderDialog import AddFolderDialog
 from ui.FolderBtnWidget import FolderBtnWidget
 from ui.AddGraphDialog import AddGraphDialog
 from db.db_handlers import DataBase
+from db.save_handlers import to_dataframe, save_to_file
 from generation.net_generation import generate_graph
 
 
 class MainWindow(QWidget):
     current_widgets = []
     generated_graphs = []
+    current_graph_id = 0
+    current_folder_id = 0
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -41,6 +44,9 @@ class MainWindow(QWidget):
         self.ui.back_to_folders_btn.clicked.connect(self.set_previous_widget)
         self.ui.graphs_table.cellDoubleClicked.connect(self.show_graph_from_table)
         self.ui.graph_num.textChanged.connect(self.show_full_generation_form)
+        self.ui.delete_graph_btn.clicked.connect(self.delete_graph)
+        self.ui.delete_folder_btn.clicked.connect(self.delete_folder)
+        self.ui.download_graphs_btn.clicked.connect(self.save_graphs_to_file)
 
         int_validator = QRegExpValidator(QRegExp(r'[0-9]+'))
         text_validator = QRegExpValidator(QRegExp(r'^[\w]+$'))
@@ -48,8 +54,6 @@ class MainWindow(QWidget):
         self.ui.min_troughput.setValidator(int_validator)
         self.ui.max_troughput.setValidator(int_validator)
         self.ui.folder_name.setValidator(text_validator)
-
-
     # end def __init__
 
     def set_add_folder_dialog(self):
@@ -217,6 +221,8 @@ class MainWindow(QWidget):
         self.current_widgets.append(self.ui.my_graphs_widget)
         self.ui.my_graphs_widget.show()
 
+        self.current_folder_id = folder_id
+
         graphs = self.get_graph_from_db(folder_id)
 
         self.ui.graphs_table.setRowCount(len(graphs))
@@ -234,6 +240,7 @@ class MainWindow(QWidget):
     def show_graph_from_table(self, row, column):
         print(row)
         graph_id = str(self.ui.graphs_table.item(row, 0).text())
+        self.current_graph_id = graph_id
         print(graph_id)
         with self.db:
             graph_info = tuple(self.db.get_graph(graph_id))
@@ -268,3 +275,42 @@ class MainWindow(QWidget):
         with self.db:
             return self.db.get_graphs(folder_id)
     # end def get_graph_from_db
+
+    def delete_graph(self):
+        with self.db:
+            self.db.delete_graph(self.current_graph_id)
+        self.set_previous_widget()
+    # end def delete_graph
+
+    def delete_folder(self, folder_id):
+        with self.db:
+            self.db.delete_folder(self.current_folder_id)
+
+        self.ui.gridLayoutFolderBtns.removeWidget()
+
+        while self.current_widgets:
+            self.current_widgets.pop().close()
+        self.set_frame_folders()
+    # end def delete_folder
+
+    def save_graphs_to_file(self):
+        file_name = self.save_file_dialog()
+        with self.db:
+            graphs = self.db.get_graph_net(self.current_folder_id)
+        df_list = []
+        for graph in graphs:
+            df_list.append(to_dataframe(graph[0]))
+        save_to_file(df_list, file_name)
+    # end def save_graphs_to_file
+
+    def save_file_dialog(self):
+        file_filter = 'Data File (*.xlsx *.csv *.dat);; Excel File (*.xlsx *.xls)'
+        response = QFileDialog.getSaveFileName(
+            parent=self,
+            caption='Сохранение графов',
+            filter=file_filter,
+            initialFilter='Excel File (*.xlsx *.xls)',
+            directory='new_file.xlsx'
+        )
+        return response[0]
+    # end def save_file_dialog

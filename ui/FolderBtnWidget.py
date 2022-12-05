@@ -13,7 +13,7 @@ class FolderBtnWidget(QWidget):
 
         self.id = folder_id
 
-        self.ui.folder_btn.setText(folder_name+str(folder_id))
+        self.ui.folder_btn.setText(folder_name)
         self.ui.folder_btn.clicked.connect(self.btn_click)
 
     def btn_click(self):

@@ -1,5 +1,5 @@
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QWidget, QFileDialog
+# from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QWidget, QFileDialog, QMessageBox, QHeaderView, QTableWidgetItem
 from PyQt5.QtGui import QRegExpValidator
 from PyQt5.QtCore import QRegExp
 
@@ -221,12 +221,12 @@ class MainWindow(QWidget):
         header_hor = self.ui.weights_table.horizontalHeader()
         header_ver = self.ui.weights_table.verticalHeader()
         for i in range(nodes):
-            header_ver.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
-            header_hor.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+            header_ver.setSectionResizeMode(i, QHeaderView.Stretch)
+            header_hor.setSectionResizeMode(i, QHeaderView.Stretch)
 
         for node in net:
             for x in net[node]:
-                self.ui.weights_table.setItem(int(node), int(x), QtWidgets.QTableWidgetItem(str(net[node][x])))
+                self.ui.weights_table.setItem(int(node), int(x), QTableWidgetItem(str(net[node][x])))
     # end def set_frame_graph
 
     def set_frame_table_graph(self, folder_id):
@@ -246,15 +246,15 @@ class MainWindow(QWidget):
         graphs = self.get_graph_from_db(folder_id)
 
         self.ui.graphs_table.setRowCount(len(graphs))
-        self.ui.graphs_table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        self.ui.graphs_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
         for i in range(3):
-            self.ui.graphs_table.horizontalHeader().setSectionResizeMode(i+1, QtWidgets.QHeaderView.Stretch)
+            self.ui.graphs_table.horizontalHeader().setSectionResizeMode(i+1, QHeaderView.Stretch)
 
         for i, graph in enumerate(graphs):
-            self.ui.graphs_table.setItem(i, 0, QtWidgets.QTableWidgetItem(str(graph[0])))
-            self.ui.graphs_table.setItem(i, 1, QtWidgets.QTableWidgetItem(graph[1]))
-            self.ui.graphs_table.setItem(i, 2, QtWidgets.QTableWidgetItem(str(graph[2])))
-            self.ui.graphs_table.setItem(i, 3, QtWidgets.QTableWidgetItem(str(graph[3])))
+            self.ui.graphs_table.setItem(i, 0, QTableWidgetItem(str(graph[0])))
+            self.ui.graphs_table.setItem(i, 1, QTableWidgetItem(graph[1]))
+            self.ui.graphs_table.setItem(i, 2, QTableWidgetItem(str(graph[2])))
+            self.ui.graphs_table.setItem(i, 3, QTableWidgetItem(str(graph[3])))
     # end def set_frame_table_graph
 
     def show_graph_from_table(self, row, column):
@@ -297,28 +297,33 @@ class MainWindow(QWidget):
     # end def get_graph_from_db
 
     def delete_graph(self):
-        with self.db:
-            self.db.delete_graph(self.current_graph_id)
-        print(self.current_widgets)
-        self.current_widgets.pop().close()
-        self.current_widgets.pop().close()
-        print(self.current_widgets)
-        print(self.current_folder_id)
-        self.set_frame_table_graph(self.current_folder_id)
+        msg = QMessageBox.question(self, 'Удаление графа', "Вы действительно хотите удалить граф?",
+                                   QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if msg == QMessageBox.Yes:
+            with self.db:
+                self.db.delete_graph(self.current_graph_id)
+            print(self.current_widgets)
+            self.current_widgets.pop().close()
+            self.current_widgets.pop().close()
+            print(self.current_widgets)
+            print(self.current_folder_id)
+            self.set_frame_table_graph(self.current_folder_id)
     # end def delete_graph
 
     def delete_folder(self, folder_id):
-        with self.db:
-            self.db.delete_folder(self.current_folder_id)
+        msg = QMessageBox.question(self, 'Удаление папки', "Вы действительно хотите удалить папку?",
+                                   QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if msg == QMessageBox.Yes:
+            with self.db:
+                self.db.delete_folder(self.current_folder_id)
 
-        # self.ui.gridLayoutFolderBtns.removeWidget()
-        self.folders = self.get_all_folders()
-        print(self.folders)
+            self.folders = self.get_all_folders()
+            print(self.folders)
 
-        self.current_widgets.pop().close()
-        print(self.current_widgets)
+            self.current_widgets.pop().close()
+            print(self.current_widgets)
 
-        self.set_frame_folders()
+            self.set_frame_folders()
     # end def delete_folder
 
     def save_graphs_to_file(self):

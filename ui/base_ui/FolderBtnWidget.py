@@ -20,6 +20,9 @@ class Ui_folder_btn_widget(object):
         self.folder_btn.setGeometry(QtCore.QRect(5, 5, 140, 140))
         self.folder_btn.setMinimumSize(QtCore.QSize(130, 130))
         self.folder_btn.setMaximumSize(QtCore.QSize(140, 140))
+        font = QtGui.QFont()
+        font.setPointSize(8)
+        self.folder_btn.setFont(font)
         self.folder_btn.setStyleSheet("QPushButton{\n"
 "    color: rgb(17,17,17);\n"
 "    border-width: 1px;\n"

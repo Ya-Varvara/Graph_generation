@@ -86,6 +86,11 @@ QLineEdit{
      <height>60</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>8</pointsize>
+    </font>
+   </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
    </property>
@@ -129,7 +134,7 @@ QLineEdit{
       <property name="font">
        <font>
         <family>MS Shell Dlg 2</family>
-        <pointsize>12</pointsize>
+        <pointsize>8</pointsize>
        </font>
       </property>
       <property name="layoutDirection">
@@ -168,6 +173,11 @@ QLineEdit{
         <width>10000</width>
         <height>23</height>
        </size>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>8</pointsize>
+       </font>
       </property>
      </widget>
     </item>

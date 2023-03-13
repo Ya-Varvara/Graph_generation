@@ -4,12 +4,6 @@ from generation.graph_draw import draw_graph
 from collections import deque
 
 
-# TODO Рефакторинг всего кода
-# TODO Сохранять планарные графы
-# TODO Настроить БД для хранения графов
-# TODO Настроить выборку из БД
-
-
 def generate_graph(nodes: int, min_weight=10, max_weight=70, info=False, draw=False) -> tuple:
     """
     Функция генерации сети с одним источником и одним стоком. При этом при решении данного графа можно построить хотя бы один увеличивающий маршрут

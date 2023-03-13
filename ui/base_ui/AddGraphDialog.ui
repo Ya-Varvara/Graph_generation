@@ -103,6 +103,11 @@ QComboBox{
      <height>60</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>8</pointsize>
+    </font>
+   </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
    </property>
@@ -152,7 +157,7 @@ QComboBox{
       <property name="font">
        <font>
         <family>MS Shell Dlg 2</family>
-        <pointsize>12</pointsize>
+        <pointsize>8</pointsize>
        </font>
       </property>
       <property name="layoutDirection">
@@ -195,7 +200,7 @@ QComboBox{
       <property name="font">
        <font>
         <family>MS Shell Dlg 2</family>
-        <pointsize>12</pointsize>
+        <pointsize>8</pointsize>
        </font>
       </property>
       <property name="layoutDirection">
@@ -235,6 +240,11 @@ QComboBox{
         <height>23</height>
        </size>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>8</pointsize>
+       </font>
+      </property>
      </widget>
     </item>
     <item row="1" column="1">
@@ -256,6 +266,11 @@ QComboBox{
         <width>16777215</width>
         <height>23</height>
        </size>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>8</pointsize>
+       </font>
       </property>
      </widget>
     </item>

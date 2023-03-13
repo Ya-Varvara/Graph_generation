@@ -1,6 +1,6 @@
 # from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QWidget, QFileDialog, QMessageBox, QHeaderView, QTableWidgetItem
-from PyQt5.QtGui import QRegExpValidator
+from PyQt5.QtGui import QRegExpValidator, QIcon
 from PyQt5.QtCore import QRegExp
 
 from ui.base_ui.mainWindow import Ui_main_window
@@ -22,16 +22,12 @@ class MainWindow(QWidget):
         super(MainWindow, self).__init__()
         self.ui = Ui_main_window()
         self.ui.setupUi(self)
-
-        self.ui.graph_widget.close()
-        self.ui.my_graphs_widget.close()
-        self.ui.generation_widget.close()
-        self.ui.my_folders_widget.close()
+        self.setWindowIcon(QIcon('icon.ico'))
 
         self.db = DataBase()
 
         self.folders = self.get_all_folders()
-        print(self.folders)
+        # print(self.folders)
 
         self.set_frame_folders()
 
@@ -39,15 +35,15 @@ class MainWindow(QWidget):
         self.ui.generation_btn.clicked.connect(self.set_frame_generation)
         self.ui.create_folder_btn.clicked.connect(self.set_add_folder_dialog)
         self.ui.generate_graph_btn.clicked.connect(self.check_generation_input)
-        self.ui.close_graph_frame_btn.clicked.connect(self.set_previous_widget)
-        self.ui.add_graph_btn.clicked.connect(self.set_add_graph_dialog)
+        self.ui.close_graph_frame_button.clicked.connect(self.set_previous_widget)
+        self.ui.add_graph_button.clicked.connect(self.set_add_graph_dialog)
         self.ui.back_to_folders_btn.clicked.connect(self.set_previous_widget)
         self.ui.graphs_table.cellDoubleClicked.connect(self.show_graph_from_table)
         self.ui.graph_num.textChanged.connect(self.show_full_generation_form)
-        self.ui.delete_graph_btn.clicked.connect(self.delete_graph)
+        self.ui.delete_graph_button.clicked.connect(self.delete_graph)
         self.ui.delete_folder_btn.clicked.connect(self.delete_folder)
         self.ui.download_graphs_btn.clicked.connect(self.save_graphs_to_file)
-        self.ui.save_graph_btn.clicked.connect(self.save_one_graph)
+        self.ui.save_graph_button.clicked.connect(self.save_one_graph)
 
         int_validator = QRegExpValidator(QRegExp(r'[0-9]+'))
         text_validator = QRegExpValidator(QRegExp(r'^[\w]+$'))
@@ -58,7 +54,7 @@ class MainWindow(QWidget):
     # end def __init__
 
     def set_add_folder_dialog(self):
-        print("Окно для добавления папки")
+        # print("Окно для добавления папки")
         dialog = AddFolderDialog()
         dialog.show()
         if dialog.exec_():
@@ -71,17 +67,16 @@ class MainWindow(QWidget):
     # end def set_add_folder_dialog
 
     def set_previous_widget(self):
-        self.current_widgets.pop().close()
-        self.current_widgets[-1].show()
+        self.current_widgets = self.current_widgets[:-1]
+        self.ui.stackedWidget.setCurrentWidget(self.current_widgets[-1])
     # end def set_previous_widget
 
     def set_frame_generation(self):
-        print("Фрейм с формой для генерации графа")
-        while self.current_widgets:
-            self.current_widgets.pop().close()
+        # print("Фрейм с формой для генерации графа")
+        self.current_widgets.clear()
         self.current_widgets.append(self.ui.generation_widget)
 
-        self.ui.generation_widget.show()
+        self.ui.stackedWidget.setCurrentWidget(self.ui.generation_widget)
 
         self.ui.folder_name.clear()
         self.ui.nodes_num.cleanText()
@@ -102,6 +97,14 @@ class MainWindow(QWidget):
             self.ui.label_folder_name.hide()
     # end def show_full_generation_form
 
+    def show_info_messagebox(self, message):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText(message)
+        msg.setWindowTitle("Осторожно!")
+        msg.setStandardButtons(QMessageBox.Ok)
+        retval = msg.exec_()
+
     def check_generation_input(self):
         nodes_num = int(self.ui.nodes_num.text())
         graph_num = int(self.ui.graph_num.text())
@@ -110,7 +113,7 @@ class MainWindow(QWidget):
             min_th = int(self.ui.min_troughput.text())
             max_th = int(self.ui.max_troughput.text())
 
-            if max_th - min_th >= 10:
+            if max_th - min_th >= 10 and min_th > 0:
                 if self.generated_graphs:
                     self.generated_graphs.clear()
 
@@ -150,21 +153,23 @@ class MainWindow(QWidget):
 
                         self.set_frame_table_graph(folder_id)
                     else:
-                        print("Enter new folder name")
+                        self.show_info_messagebox("Введите название папки")
+                        # print("Enter new folder name")
 
             else:
-                print("max <= min")
+                self.show_info_messagebox(f"Минимальная пропускная способность должна быть меньше максимальной!\nДля лучшего распределения разница между максимальным и минимальным значением должна быть больше 30")
+                # print("max <= min")
         else:
-            print("No input")
+            self.show_info_messagebox("Вы ввели не все значения")
+            # print("No input")
         return
     # end def check_generation_input
 
     def set_frame_folders(self):
-        print("Фрейм с папками")
-        while self.current_widgets:
-            self.current_widgets.pop().close()
+        # print("Фрейм с папками")
+        self.ui.stackedWidget.setCurrentWidget(self.ui.my_folders_widget)
+        self.current_widgets.clear()
         self.current_widgets.append(self.ui.my_folders_widget)
-        self.ui.my_folders_widget.show()
 
         self.clear_area()
 
@@ -186,21 +191,20 @@ class MainWindow(QWidget):
     # end def clear_area
 
     def set_frame_graph(self, graph_data=None):
-        print("In graph frame")
-        self.current_widgets[-1].close()
+        # print("In graph frame")
         self.current_widgets.append(self.ui.graph_widget)
-        self.ui.graph_widget.show()
+        self.ui.stackedWidget.setCurrentWidget(self.ui.graph_widget)
 
         if len(graph_data) == 8:
             check, net, nodes, cutA, cutB, cut, r_cut, max_flow = graph_data
-            self.ui.add_graph_btn.show()
-            self.ui.save_graph_btn.hide()
-            self.ui.delete_graph_btn.hide()
+            self.ui.add_graph_button.show()
+            self.ui.save_graph_button.hide()
+            self.ui.delete_graph_button.hide()
         else:
             graph_id, name, folder, net, nodes, max_flow, cutA, cutB, cut, r_cut = graph_data
-            self.ui.add_graph_btn.hide()
-            self.ui.save_graph_btn.show()
-            self.ui.delete_graph_btn.show()
+            self.ui.add_graph_button.hide()
+            self.ui.save_graph_button.show()
+            self.ui.delete_graph_button.show()
 
         info = [f"Кол-во вершин: {nodes}",
                 f"Максимальный поток: {max_flow}",
@@ -209,32 +213,31 @@ class MainWindow(QWidget):
                 f"Ребра разреза: {cut}",
                 f"Обратные ребра разреза: {r_cut}"]
 
-        self.ui.graph_info.clear()
-        self.ui.graph_info.setText('\n'.join(info))
+        self.ui.graph_info_textedit.clear()
+        self.ui.graph_info_textedit.setText('\n'.join(info))
 
-        self.ui.weights_table.clear()
-        self.ui.weights_table.setRowCount(nodes)
-        self.ui.weights_table.setColumnCount(nodes)
+        self.ui.weights_table_3.clear()
+        self.ui.weights_table_3.setRowCount(nodes)
+        self.ui.weights_table_3.setColumnCount(nodes)
         labels = [f'x{node+1}' for node in range(nodes)]
-        self.ui.weights_table.setHorizontalHeaderLabels(labels)
-        self.ui.weights_table.setVerticalHeaderLabels(labels)
-        header_hor = self.ui.weights_table.horizontalHeader()
-        header_ver = self.ui.weights_table.verticalHeader()
+        self.ui.weights_table_3.setHorizontalHeaderLabels(labels)
+        self.ui.weights_table_3.setVerticalHeaderLabels(labels)
+        header_hor = self.ui.weights_table_3.horizontalHeader()
+        header_ver = self.ui.weights_table_3.verticalHeader()
         for i in range(nodes):
             header_ver.setSectionResizeMode(i, QHeaderView.Stretch)
             header_hor.setSectionResizeMode(i, QHeaderView.Stretch)
 
         for node in net:
             for x in net[node]:
-                self.ui.weights_table.setItem(int(node), int(x), QTableWidgetItem(str(net[node][x])))
+                self.ui.weights_table_3.setItem(int(node), int(x), QTableWidgetItem(str(net[node][x])))
     # end def set_frame_graph
 
     def set_frame_table_graph(self, folder_id):
-        self.current_widgets[-1].close()
         self.current_widgets.append(self.ui.my_graphs_widget)
-        self.ui.my_graphs_widget.show()
+        self.ui.stackedWidget.setCurrentWidget(self.ui.my_graphs_widget)
 
-        print(self.current_widgets)
+        # print(self.current_widgets)
 
         self.current_folder_id = folder_id
 
@@ -258,13 +261,13 @@ class MainWindow(QWidget):
     # end def set_frame_table_graph
 
     def show_graph_from_table(self, row, column):
-        print(row)
+        # print(row)
         graph_id = str(self.ui.graphs_table.item(row, 0).text())
         self.current_graph_id = graph_id
-        print(graph_id)
+        # print(graph_id)
         with self.db:
             graph_info = tuple(self.db.get_graph(graph_id))
-        print(graph_info)
+        # print(graph_info)
         self.set_frame_graph(graph_info)
     # end def show_graph_from_table
 
@@ -275,18 +278,18 @@ class MainWindow(QWidget):
             graph_name = dialog.new_graph_name
             folder_id = dialog.folder_id
             if graph_name:
-                print(self.generated_graphs)
+                # print(self.generated_graphs)
                 check, net, nodes, cutA, cutB, cut, r_cut, max_flow = self.generated_graphs.pop()
-                print(check, net, nodes, cutA, cutB, cut, r_cut, max_flow)
-                print(graph_name)
+                # print(check, net, nodes, cutA, cutB, cut, r_cut, max_flow)
+                # print(graph_name)
                 with self.db:
-                    print("In db")
+                    # print("In db")
                     self.db.add_graph(graph_name, folder_id, net, nodes, cutA, cutB, cut, r_cut, max_flow)
                 self.set_frame_generation()
     # end def set_add_graph_dialog
 
     def get_all_folders(self) -> list:
-        print("Get all folders")
+        # print("Get all folders")
         with self.db:
             return self.db.get_folders()
     # end def get_all_folders
@@ -302,11 +305,12 @@ class MainWindow(QWidget):
         if msg == QMessageBox.Yes:
             with self.db:
                 self.db.delete_graph(self.current_graph_id)
-            print(self.current_widgets)
-            self.current_widgets.pop().close()
-            self.current_widgets.pop().close()
-            print(self.current_widgets)
-            print(self.current_folder_id)
+            # print(self.current_widgets)
+            # self.current_widgets.pop().close()
+            # self.current_widgets.pop().close()
+            self.current_widgets = self.current_widgets[:-2]
+            # print(self.current_widgets)
+            # print(self.current_folder_id)
             self.set_frame_table_graph(self.current_folder_id)
     # end def delete_graph
 
@@ -318,10 +322,10 @@ class MainWindow(QWidget):
                 self.db.delete_folder(self.current_folder_id)
 
             self.folders = self.get_all_folders()
-            print(self.folders)
+            # print(self.folders)
 
-            self.current_widgets.pop().close()
-            print(self.current_widgets)
+            self.current_widgets = self.current_widgets[:-1]
+            # print(self.current_widgets)
 
             self.set_frame_folders()
     # end def delete_folder
@@ -344,7 +348,7 @@ class MainWindow(QWidget):
             return
         with self.db:
             graph = self.db.get_graph(self.current_graph_id)
-        print(graph)
+        # print(graph)
         df_list = [to_dataframe(graph[3])]
         save_to_file(df_list, file_name)
     # end def save_one_graph
@@ -358,10 +362,10 @@ class MainWindow(QWidget):
             initialFilter='Excel File (*.xlsx *.xls)',
             directory='new_file.xlsx'
         )
-        print(response)
+        # print(response)
         if response[0]:
             return response[0]
         else:
-            print("Return")
+            # print("Return")
             return 0
     # end def save_file_dialog

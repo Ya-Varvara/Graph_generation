@@ -10,6 +10,8 @@ class AddFolderDialog(QDialog):
         self.ui = Ui_add_folder_dialog()
         self.ui.setupUi(self)
 
+        # self.ui.buttonBox.StandardButton.Save.
+
         text_validator = QRegExpValidator(QRegExp(r'^[\w]+$'))
         self.ui.name_folder.setValidator(text_validator)
 
